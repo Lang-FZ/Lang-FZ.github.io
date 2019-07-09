@@ -1,18 +1,10 @@
 ---
+title: 关于我
 layout: page
-title: About
-permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+<br/>
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+#### 我是一个iOSer，最近在学习图形相关，有点健忘了，弄个blog对抗健忘。
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
+#### 博客模板是别人的，蛮好看的就用了。 模板拥有者：https://github.com/leopardpan
