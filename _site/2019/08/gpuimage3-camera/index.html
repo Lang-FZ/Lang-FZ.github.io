@@ -6,17 +6,17 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <title>GPUImage3 添加Vertex参数</title>
-  <meta name="description" content="前两个月看了 当一个 Android 开发玩抖音玩疯了之后(二) 之后，对这几款滤镜非常感兴趣，然后又看到了雷曼同学的 在iOS中使用GLSL实现抖音特效，越发想把这几款滤镜写到自己demo中，但是我不会写OpenGLES，更不会GLSL，也只是刚开始学习Metal。">
+  <title>GPUImage3 Camera的一些注意点</title>
+  <meta name="description" content="第一步图片的滤镜功能学会之后开始研究镜头的拍照部分，在GPUImage3 Camera文件里面看到很多需要注意的点。1. Camera 的delegate没加weak，然后delegate继承自class2. 镜头切换功能还没写，需要在两个地方修改，location的set方法和imageOrientation，...">
   <meta name="author" content="leopardpan">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="GPUImage3 添加Vertex参数">
-  <meta name="twitter:description" content="前两个月看了 当一个 Android 开发玩抖音玩疯了之后(二) 之后，对这几款滤镜非常感兴趣，然后又看到了雷曼同学的 在iOS中使用GLSL实现抖音特效，越发想把这几款滤镜写到自己demo中，但是我不会写OpenGLES，更不会GLSL，也只是刚开始学习Metal。">
+  <meta name="twitter:title" content="GPUImage3 Camera的一些注意点">
+  <meta name="twitter:description" content="第一步图片的滤镜功能学会之后开始研究镜头的拍照部分，在GPUImage3 Camera文件里面看到很多需要注意的点。1. Camera 的delegate没加weak，然后delegate继承自class2. 镜头切换功能还没写，需要在两个地方修改，location的set方法和imageOrientation，...">
   
   <meta property="og:type" content="article">
-  <meta property="og:title" content="GPUImage3 添加Vertex参数">
-  <meta property="og:description" content="前两个月看了 当一个 Android 开发玩抖音玩疯了之后(二) 之后，对这几款滤镜非常感兴趣，然后又看到了雷曼同学的 在iOS中使用GLSL实现抖音特效，越发想把这几款滤镜写到自己demo中，但是我不会写OpenGLES，更不会GLSL，也只是刚开始学习Metal。">
+  <meta property="og:title" content="GPUImage3 Camera的一些注意点">
+  <meta property="og:description" content="第一步图片的滤镜功能学会之后开始研究镜头的拍照部分，在GPUImage3 Camera文件里面看到很多需要注意的点。1. Camera 的delegate没加weak，然后delegate继承自class2. 镜头切换功能还没写，需要在两个地方修改，location的set方法和imageOrientation，...">
   
   <link rel="icon" type="image/png" href="/images/favicon.png" />
   <link href="/images/favicon.png" rel="shortcut icon" type="image/png">
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="/css/main.css">
   <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 
-  <link rel="canonical" href="http://localhost:4000/2019/08/gpuimage3-vertex/">
+  <link rel="canonical" href="http://localhost:4000/2019/08/gpuimage3-camera/">
   <link rel="alternate" type="application/rss+xml" title="LFZ 代码簿" href="http://localhost:4000/feed.xml">
   
   <meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" />
@@ -156,10 +156,10 @@
         <div class="content-wrapper__inner">
             <article class="post-container post-container--single" itemscope itemtype="http://schema.org/BlogPosting">
   <header class="post-header">
-    <h1 class="post-title">GPUImage3 添加Vertex参数</h1>
+    <h1 class="post-title">GPUImage3 Camera的一些注意点</h1>
     <div class="post-meta">
       <img src="/images/calendar.png" width="20px"/> 
-      <time datetime="2019-08-09 00:45:00 +0800" itemprop="datePublished" class="post-meta__date date">2019-08-09</time>  
+      <time datetime="2019-08-11 16:40:00 +0800" itemprop="datePublished" class="post-meta__date date">2019-08-11</time>  
          
       <span id="busuanzi_container_page_pv"> | 阅读：<span id="busuanzi_value_page_pv"></span>次</span>
     </p>
@@ -168,47 +168,18 @@
 
   <section class="post">
     <hr />
-<h4 id="前两个月看了-当一个-android-开发玩抖音玩疯了之后二-之后对这几款滤镜非常感兴趣然后又看到了雷曼同学的-在ios中使用glsl实现抖音特效越发想把这几款滤镜写到自己demo中但是我不会写opengles更不会glsl也只是刚开始学习metal">前两个月看了 <a href="https://www.jianshu.com/p/5bb7f2a0da90">当一个 Android 开发玩抖音玩疯了之后(二)</a> 之后，对这几款滤镜非常感兴趣，然后又看到了雷曼同学的 <a href="https://www.jianshu.com/p/2fe27c351c91">在iOS中使用GLSL实现抖音特效</a>，越发想把这几款滤镜写到自己demo中，但是我不会写OpenGLES，更不会GLSL，也只是刚开始学习Metal。</h4>
-
-<h4 id="我尝试搞这几个滤镜结果第一个就卡住了缩放滤镜是针对顶点着色器的结果我找gpuimage3的api发现没找到看别人的demo发现都是片元着色器这个时候的我也看不懂msl那些参数是啥意思作为图形门外汉的我只能开始了漫长的啃msl过程">我尝试搞这几个滤镜，结果第一个就卡住了，，，缩放滤镜是针对顶点着色器的，结果我找GPUImage3的Api，发现没找到，，，看别人的demo发现都是片元着色器，这个时候的我也看不懂MSL那些参数是啥意思，作为图形门外汉的我只能开始了漫长的啃MSL过程。。。</h4>
-
-<h4 id="看了好久然后终于知道大概语法了也发现gpuimage3的问题了它压根没提供顶点着色器的缓存对应关系没办法了只能先看懂gpuimage3怎么给片元着色器提供这个功能的然后再自己添加给编码器提供顶点着色器缓存的功能了经过一顿乱找一两天过去了我也终于看懂大概了下面是最终实现方法">看了好久。。。然后终于知道大概语法了，也发现GPUImage3的问题了，，，它压根没提供顶点着色器的缓存对应关系，，，没办法了，只能先看懂GPUImage3怎么给片元着色器提供这个功能的然后再自己添加给编码器提供顶点着色器缓存的功能了。经过一顿乱找，一两天过去了，我也终于看懂大概了，下面是最终实现方法。</h4>
+<h4 id="第一步图片的滤镜功能学会之后开始研究镜头的拍照部分在gpuimage3-camera文件里面看到很多需要注意的点">第一步图片的滤镜功能学会之后开始研究镜头的拍照部分，在GPUImage3 Camera文件里面看到很多需要注意的点。</h4>
 <hr />
-<h3 id="下面是给gpuimage3增加的-渲染过程给编码器添加顶点着色器参数缓存功能的实现"><strong>下面是给GPUImage3增加的 渲染过程给编码器添加顶点着色器参数缓存功能的实现:</strong></h3>
 
-<p><strong>1. BasicOperation 加属性 vertexUniformSettings</strong></p>
+<h3 id="1-camera-的delegate没加weak然后delegate继承自class"><strong>1. Camera 的delegate没加weak，然后delegate继承自class</strong></h3>
+<p><img src="http://localhost:4000/images/post/delegate-weak.png" alt="" />
+<img src="http://localhost:4000/images/post/protocol-class.png" alt="" /></p>
+<h3 id="2-镜头切换功能还没写需要在两个地方修改location的set方法和imageorientation下面是实现方式"><strong>2. 镜头切换功能还没写，需要在两个地方修改，location的set方法和imageOrientation，下面是实现方式</strong></h3>
+<p><img src="http://localhost:4000/images/post/camera-location.png" alt="" />
+<img src="http://localhost:4000/images/post/imageOrientation.png" alt="" /></p>
 
-<p><img src="http://localhost:4000/images/post/1-BasicOperation%E5%8A%A0%E5%B1%9E%E6%80%A7.png" alt="" /></p>
-
-<p><strong>2. 在获取参数表的方法里添加vertex相关 这里可以看到 GPUImage3 片元着色器的参数是规定为struct的</strong></p>
-
-<p><img src="http://localhost:4000/images/post/2-%E8%8E%B7%E5%8F%96%E5%8F%82%E6%95%B0%E8%A1%A8%E6%96%B9%E6%B3%95.png" alt="" /></p>
-
-<p><strong>3. 创建给编码器添加vertex参数缓存区的方法  position 0  texturecoord 1  新参数就默认 index=2 了</strong></p>
-
-<p><img src="http://localhost:4000/images/post/3-%E7%BC%96%E7%A0%81%E5%99%A8%E8%AE%BE%E7%BD%AE%E7%BC%93%E5%AD%98%E5%8C%BA.png" alt="" /></p>
-
-<p><strong>4. 在编码过程方法里添加vertex 参数缓存</strong></p>
-
-<p><img src="http://localhost:4000/images/post/4-%E7%BC%96%E7%A0%81%E8%BF%87%E7%A8%8B%E8%B0%83%E7%94%A8%E8%AE%BE%E7%BD%AE%E7%BC%93%E5%AD%98%E5%8C%BA%E6%96%B9%E6%B3%95.png" alt="" /></p>
-
-<p><strong>5. 在滤镜链添加的过程里将vertex参数缓存区对应创建好</strong></p>
-
-<p><img src="http://localhost:4000/images/post/5-%E6%BB%A4%E9%95%9C%E9%93%BE%E6%B7%BB%E5%8A%A0%E8%BF%87%E7%A8%8B%E9%87%8C%E4%BC%A0%E9%80%92%E9%A1%B6%E7%82%B9%E7%BC%93%E5%AD%98%E8%A1%A8.png" alt="" /></p>
-
-<h3 id="实现之后的使用方法"><strong>实现之后的使用方法:</strong></h3>
-
-<p><strong>1. 滤镜类</strong></p>
-
-<p><img src="http://localhost:4000/images/post/6-%E6%BB%A4%E9%95%9C%E7%B1%BB.png" alt="" /></p>
-
-<p><strong>2. 滤镜着色器</strong></p>
-
-<p><img src="http://localhost:4000/images/post/7-%E6%BB%A4%E9%95%9C%E7%9D%80%E8%89%B2%E5%99%A8.png" alt="" /></p>
-
-<p><strong>3. 实例化滤镜</strong></p>
-
-<p><img src="http://localhost:4000/images/post/8-%E5%88%9D%E5%A7%8B%E5%8C%96%E6%BB%A4%E9%95%9C.png" alt="" /></p>
+<h3 id="使用的时候只需要"><strong>使用的时候只需要</strong></h3>
+<p><img src="http://localhost:4000/images/post/transferLens.png" alt="" /></p>
 
 
   </section>
@@ -278,15 +249,10 @@
        <ul class="pager">
         
         <li class="previous">
-            <a href="/2019/07/first-blogger/" data-toggle="tooltip" data-placement="top" title="第一篇博客">上一篇：  <span>第一篇博客</span>
+            <a href="/2019/08/gpuimage3-vertex/" data-toggle="tooltip" data-placement="top" title="GPUImage3 添加Vertex参数">上一篇：  <span>GPUImage3 添加Vertex参数</span>
             </a>
         </li>
         
-        
-        <li class="next">
-            <a href="/2019/08/gpuimage3-camera/" data-toggle="tooltip" data-placement="top" title="GPUImage3 Camera的一些注意点">下一篇：  <span>GPUImage3 Camera的一些注意点</span>
-            </a>
-        </li>
         
     </ul>
 </section>

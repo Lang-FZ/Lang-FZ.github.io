@@ -5,9 +5,34 @@
     <description>对抗健忘症的笔记簿</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 09 Aug 2019 02:12:32 +0800</pubDate>
-    <lastBuildDate>Fri, 09 Aug 2019 02:12:32 +0800</lastBuildDate>
+    <pubDate>Sun, 11 Aug 2019 17:05:04 +0800</pubDate>
+    <lastBuildDate>Sun, 11 Aug 2019 17:05:04 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>GPUImage3 Camera的一些注意点</title>
+        <description>&lt;hr /&gt;
+&lt;h4 id=&quot;第一步图片的滤镜功能学会之后开始研究镜头的拍照部分在gpuimage3-camera文件里面看到很多需要注意的点&quot;&gt;第一步图片的滤镜功能学会之后开始研究镜头的拍照部分，在GPUImage3 Camera文件里面看到很多需要注意的点。&lt;/h4&gt;
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;1-camera-的delegate没加weak然后delegate继承自class&quot;&gt;&lt;strong&gt;1. Camera 的delegate没加weak，然后delegate继承自class&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/images/post/delegate-weak.png&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;http://localhost:4000/images/post/protocol-class.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;2-镜头切换功能还没写需要在两个地方修改location的set方法和imageorientation下面是实现方式&quot;&gt;&lt;strong&gt;2. 镜头切换功能还没写，需要在两个地方修改，location的set方法和imageOrientation，下面是实现方式&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/images/post/camera-location.png&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;http://localhost:4000/images/post/imageOrientation.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;使用的时候只需要&quot;&gt;&lt;strong&gt;使用的时候只需要&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;http://localhost:4000/images/post/transferLens.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sun, 11 Aug 2019 16:40:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/08/gpuimage3-camera/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/08/gpuimage3-camera/</guid>
+        
+        <category>Metal</category>
+        
+        
+      </item>
     
       <item>
         <title>GPUImage3 添加Vertex参数</title>
