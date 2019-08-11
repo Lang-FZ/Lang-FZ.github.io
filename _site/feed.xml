@@ -5,9 +5,249 @@
     <description>对抗健忘症的笔记簿</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 11 Aug 2019 17:47:57 +0800</pubDate>
-    <lastBuildDate>Sun, 11 Aug 2019 17:47:57 +0800</lastBuildDate>
+    <pubDate>Mon, 12 Aug 2019 02:09:29 +0800</pubDate>
+    <lastBuildDate>Mon, 12 Aug 2019 02:09:29 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>iOS Shell自动化打包</title>
+        <description>&lt;hr /&gt;
+&lt;h4 id=&quot;整理一下自己写的自动化打包脚本&quot;&gt;整理一下自己写的自动化打包脚本&lt;/h4&gt;
+&lt;hr /&gt;
+
+&lt;h3 id=&quot;先把完整代码放出来&quot;&gt;&lt;strong&gt;先把完整代码放出来&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Shell&quot;&gt;#!/bin/bash
+#  packg.sh
+
+#获取命令后的参数 例如：ls -a 中的-a
+while getopts &quot;dlua:&quot; opt; do
+case $opt in
+a) args=$OPTARG;;
+?) echo unspport args; exit 1;;
+esac
+done
+
+#进入项目文件夹  一定要注意！进错了可能把代码删了！
+cd /Users/LFZ/**********
+#钥匙串权限 -p 后面是你的本机密码 本地打包无所谓 Jenkins远程需要权限
+security unlock-keychain -p ********* /Users/LFZ/Library/Keychains/login.keychain
+
+#这些信息可以自己写个文件保存 直接取本地文件内的配置 方便测试产品同学修改信息
+appName=&quot;*******&quot;           #app名字
+targetName=&quot;******&quot;         #taget
+local=&quot;NO&quot;                  #保存本地/上传蒲公英
+buildUpdateDescription=&quot;&quot;   #git变动信息 提交给蒲公英的更新详情
+pgyerUKey=&quot;***************************&quot;         # 这里替换蒲公英ukey
+pgyerApiKey=&quot;***************************&quot;       # 这里替换蒲公英apiKey
+emailSet=`cat $(pwd)/Profile/EmailSet/email.sh` # 包含需要发给的邮箱或邮箱组
+PlistBuddy=&quot;/usr/libexec/PlistBuddy&quot;            # PlistBuddy是解析plist的工具
+
+
+conf=Release
+initPath=$(pwd)                                 # 初始文件夹路径
+echo &quot;-------初始文件夹路径 -- $initPath&quot;
+
+date=$(date +%Y%m%d%H%M)                        # 日期
+echo &quot;-------开始时间 -- $date&quot;
+
+ipaDir=&quot;Profile/Release/Distribution/${targetName}_${date}&quot; # ipa文件夹
+echo &quot;-------ipa文件夹路径 -- $ipaDir&quot;
+
+releaseDir=&quot;build/Build/Products/Release-iphoneos&quot;
+plistFile=&quot;${initPath}/${appName}/Info.plist&quot;   # 查找info.plist文件
+echo &quot;-------Info.plist File -- $plistFile&quot;
+
+
+version=$($PlistBuddy -c &quot;Print :CFBundleShortVersionString&quot; $plistFile)    #获取工程版本号
+echo &quot;-------version -- $version&quot;
+
+buildNum=$($PlistBuddy -c &quot;Print :CFBundleVersion&quot; $plistFile)              #获取工程build号
+echo &quot;-------buildNum -- $buildNum&quot;
+
+ipa_prefix=${appName}_${version}_${buildNum}_${date}
+ipaName=${ipa_prefix}.ipa
+echo &quot;-------IPA文件名 -- $ipaName&quot;
+
+ipaPath=&quot;${initPath}/${ipaDir}/${ipaName}&quot;
+echo &quot;-------ipaPath -- $ipaPath&quot;
+appFile=&quot;${initPath}/${releaseDir}/${targetName}.app&quot;
+dSYMBackupPath=&quot;${HOME}/Documents/workspace/dSYM/${appName}/${ipa_prefix}&quot;  #dSYM文件本地缓存路径
+echo &quot;-------dSYMBackupPath -- ${dSYMBackupPath}&quot;
+
+
+#添加宏
+args=${args:+GCC_PREPROCESSOR_DEFINITIONS=$args}
+
+
+#清空文件夹里之前的文件
+function cleanFolder() {
+
+    #XcodeBuild清空设置
+    xcodebuild clean -configuration $conf
+    rm -rdf ${releaseDir%%/*} #删掉第一个，及其右边的字符串（清除build/中的所有文件夹）
+    rm -rdf &quot;$ipaDir&quot;
+
+    #新建目录
+    mkdir -p $ipaDir
+
+    ##更新AppIcon文件夹时间，否则包内图片不会被打包到Bundle
+    find $initPath/.. -name &quot;AppIcon*&quot; -exec touch {} \;
+
+    mkdir -p $dSYMBackupPath
+}
+
+#导入证书 开始打包
+function archive() {
+
+    #证书
+    #security import ${initPath}/Profile/Develop_Ent/app.p12 -k ~/Library/Keychains/login.keychain -P &quot;***&quot; -T /usr/bin/codesign
+    #SIGNING_IDENTITY=&quot;iPhone Distribution: *********** CompanyLtd. (***********)&quot;
+    PROVISIONING_PROFILE=&quot;${initPath}/Profile/Develop_Ent/********.mobileprovision&quot;
+    openssl smime -in ${PROVISIONING_PROFILE} -inform der -verify &amp;gt; provisionProfile || exit $?
+    echo &quot;-------导入证书完成-------&quot;
+
+    UUID=$(${PlistBuddy} -c &quot;print UUID&quot; provisionProfile)
+    echo &quot;-------UUID -- $UUID&quot;
+
+    lib_profile=&quot;${HOME}/Library/MobileDevice/Provisioning Profiles/${UUID}.mobileprovision&quot;
+    echo &quot;-------lib_profile --- $lib_profile&quot;
+
+    test ! -e &quot;${lib_profile}&quot; &amp;amp;&amp;amp; open ${PROVISIONING_PROFILE}
+    Profile_UUID=&quot;PROVISIONING_PROFILE=${UUID}&quot;
+    echo &quot;-------Profile_UUID -- $Profile_UUID&quot;
+
+    rm provisionProfile
+
+    xcodebuild -workspace $appName.xcworkspace -scheme ${targetName} -configuration $conf -derivedDataPath build -sdk iphoneos ${Profile_UUID} ${args} || exit $?
+
+    xcrun -sdk iphoneos PackageApplication -v &quot;$appFile&quot; -o &quot;$ipaPath&quot;
+
+    cp -r $appFile ${dSYMBackupPath}/${ipa_prefix}.app
+    echo &quot;----ipa和dSYM本地文件已生成----&quot;
+}
+
+
+#得到距离上次git拉取 commit变化信息
+function gitChangedInfo() {
+
+    touch $(pwd)/Profile/changes.sh
+    # 包含上一次git拉取的短提交名 也可以和上面的信息放在同一个文件里
+    changes=`cat $(pwd)/Profile/changes.sh`
+
+    if [ &quot;$changes&quot; == &quot;&quot; ]
+    then
+    buildUpdateDescription=`git log --date=format:'%Y-%m-%d %H:%M:%S' --pretty=format:&quot;%cd %cn %B&quot; --no-merges -1`
+    else
+    buildUpdateDescription=`git log $changes.. --date=format:'%Y-%m-%d %H:%M:%S' --pretty=format:&quot;%cd %cn %B&quot; --no-merges`
+    fi
+
+    echo &quot;-------git修改描述 -- $buildUpdateDescription&quot;
+}
+
+#上传蒲公英
+function pgyer() {
+
+    RESULT=$(curl -F &quot;file=@$ipaPath&quot; -F &quot;_api_key=$pgyerApiKey&quot; -F &quot;buildUpdateDescription=$buildUpdateDescription&quot; -F &quot;publishRange=2&quot; https://www.pgyer.com/apiv2/app/upload)
+
+    echo `git log --pretty=format:&quot;%h&quot; --no-merges -1` &amp;gt; $(pwd)/Profile/changes.sh
+    echo &quot;-------完成上传-------&quot;
+
+    #蒲公英二维码
+    httpstr=${RESULT#*buildQRCodeURL}
+    httpstr=${httpstr#*:}
+    httpstr=${httpstr//'\'/''}
+    httpstr=${httpstr//'&quot;'/''}
+    QRCode=${httpstr%&quot;}}&quot;*}
+
+    #发送邮件
+    echo -e &quot;app&amp;amp;#x66F4;&amp;amp;#x65B0;:\n$QRCode\n\n$buildUpdateDescription&quot; | mail -s &quot;iOS&amp;amp;#x65B0;&amp;amp;#x5305;&quot; $emailSet
+
+    echo &quot;QRCode:\n$QRCode&quot;
+}
+
+
+#正式调用方法
+gitChangedInfo
+cleanFolder
+archive
+pgyer
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&quot;几个小部分分析一下&quot;&gt;&lt;strong&gt;几个小部分分析一下&lt;/strong&gt;&lt;/h3&gt;
+
+&lt;h4 id=&quot;方便查看提交信息app变化&quot;&gt;&lt;strong&gt;方便查看提交信息，App变化&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Shell&quot;&gt;#得到距离上次git拉取 commit变化信息
+function gitChangedInfo() {
+
+    touch $(pwd)/Profile/changes.sh
+    # 包含上一次git拉取的短提交名 也可以和上面的信息放在同一个文件里
+    changes=`cat $(pwd)/Profile/changes.sh`
+
+    if [ &quot;$changes&quot; == &quot;&quot; ]
+    then
+    buildUpdateDescription=`git log --date=format:'%Y-%m-%d %H:%M:%S' --pretty=format:&quot;%cd %cn %B&quot; --no-merges -1`
+    else
+    buildUpdateDescription=`git log $changes.. --date=format:'%Y-%m-%d %H:%M:%S' --pretty=format:&quot;%cd %cn %B&quot; --no-merges`
+    fi
+
+    echo &quot;-------git修改描述 -- $buildUpdateDescription&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这个功能是每次成功打包都记录当前git拉取到的那个提交短码标记，保存到本地，每次远程打包都纪律两次之间提交的详情，包括提交人，提交信息，提交时间。可以在蒲公英和邮件里看到变化信息。&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h4 id=&quot;群发邮件-打包之后把新app蒲公英下载二维码发到指定邮件和邮件组&quot;&gt;&lt;strong&gt;群发邮件 打包之后把新App蒲公英下载二维码发到指定邮件和邮件组&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Shell&quot;&gt;
+emailSet=`cat $(pwd)/Profile/EmailSet/email.sh` # 包含需要发给的邮箱或邮箱组
+
+#上传蒲公英
+function pgyer() {
+
+    RESULT=$(curl -F &quot;file=@$ipaPath&quot; -F &quot;_api_key=$pgyerApiKey&quot; -F &quot;buildUpdateDescription=$buildUpdateDescription&quot; -F &quot;publishRange=2&quot; https://www.pgyer.com/apiv2/app/upload)
+
+    echo `git log --pretty=format:&quot;%h&quot; --no-merges -1` &amp;gt; $(pwd)/Profile/changes.sh
+    echo &quot;-------完成上传-------&quot;
+
+    #蒲公英二维码
+    httpstr=${RESULT#*buildQRCodeURL}
+    httpstr=${httpstr#*:}
+    httpstr=${httpstr//'\'/''}
+    httpstr=${httpstr//'&quot;'/''}
+    QRCode=${httpstr%&quot;}}&quot;*}
+
+    #发送邮件
+    echo -e &quot;app&amp;amp;#x66F4;&amp;amp;#x65B0;:\n$QRCode\n\n$buildUpdateDescription&quot; | mail -s &quot;iOS&amp;amp;#x65B0;&amp;amp;#x5305;&quot; $emailSet
+
+    echo &quot;QRCode:\n$QRCode&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;buildUpdateDescription 就是git短码比较出来的提交详情，emailSet 是在本地写的一份文件，这个是可以和其它信息整合到一分文件或者plist里面的，里面写了需要发给的邮箱或邮箱组。&lt;/p&gt;
+
+&lt;h4 id=&quot;和权限相关的部分本地权限是一部分jenkins远程打包是另一部分&quot;&gt;&lt;strong&gt;和权限相关的部分，本地权限是一部分，Jenkins远程打包是另一部分&lt;/strong&gt;&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Shell&quot;&gt;#钥匙串权限 -p 后面是你的本机密码
+security unlock-keychain -p ********* /Users/LFZ/Library/Keychains/login.keychain
+#证书 因为我这里用的是Adhoc的描述文件 -P 后面是p12的密码 Distribution 后面是钥匙串里生产证书的全名和组名
+#security import ${initPath}/Profile/Develop_Ent/app.p12 -k ~/Library/Keychains/login.keychain -P &quot;***&quot; -T /usr/bin/codesign
+#SIGNING_IDENTITY=&quot;iPhone Distribution: *********** CompanyLtd. (***********)&quot;
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+        <pubDate>Mon, 12 Aug 2019 01:46:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/08/test/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/08/test/</guid>
+        
+        <category>Shell</category>
+        
+        
+      </item>
     
       <item>
         <title>GPUImage3 拍照并保存</title>
