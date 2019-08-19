@@ -5,10 +5,8 @@
     <description>对抗健忘症的笔记簿</description>
     <link>http://localhost:4000/</link>
     <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
-
-    <pubDate>Fri, 16 Aug 2019 18:15:27 +0800</pubDate>
-    <lastBuildDate>Fri, 16 Aug 2019 18:15:27 +0800</lastBuildDate>
-
+    <pubDate>Mon, 19 Aug 2019 11:21:27 +0800</pubDate>
+    <lastBuildDate>Mon, 19 Aug 2019 11:21:27 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -158,9 +156,9 @@ function pgyer() {
     #蒲公英二维码
     httpstr=${RESULT#*buildQRCodeURL}
     httpstr=${httpstr#*:}
-    httpstr=${httpstr#*&quot;}
-    httpstr=${httpstr%&quot;*}
-    QRCode=${httpstr//'\'/''}
+    httpstr=${httpstr//'\'/''}
+    httpstr=${httpstr//'&quot;'/''}
+    QRCode=${httpstr%&quot;}}&quot;*}
 
     #发送邮件
     echo -e &quot;app&amp;amp;#x66F4;&amp;amp;#x65B0;:\n$QRCode\n\n$buildUpdateDescription&quot; | mail -s &quot;iOS&amp;amp;#x65B0;&amp;amp;#x5305;&quot; $emailSet
@@ -220,9 +218,9 @@ function pgyer() {
     #蒲公英二维码
     httpstr=${RESULT#*buildQRCodeURL}
     httpstr=${httpstr#*:}
-    httpstr=${httpstr#*&quot;}
-    httpstr=${httpstr%&quot;*}
-    QRCode=${httpstr//'\'/''}
+    httpstr=${httpstr//'\'/''}
+    httpstr=${httpstr//'&quot;'/''}
+    QRCode=${httpstr%&quot;}}&quot;*}
 
     #发送邮件
     echo -e &quot;app&amp;amp;#x66F4;&amp;amp;#x65B0;:\n$QRCode\n\n$buildUpdateDescription&quot; | mail -s &quot;iOS&amp;amp;#x65B0;&amp;amp;#x5305;&quot; $emailSet

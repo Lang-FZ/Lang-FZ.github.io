@@ -312,9 +312,9 @@ function pgyer() {
     #蒲公英二维码
     httpstr=${RESULT#*buildQRCodeURL}
     httpstr=${httpstr#*:}
-    httpstr=${httpstr#*"}
-    httpstr=${httpstr%"*}
-    QRCode=${httpstr//'\'/''}
+    httpstr=${httpstr//'\'/''}
+    httpstr=${httpstr//'"'/''}
+    QRCode=${httpstr%"}}"*}
 
     #发送邮件
     echo -e "app&amp;#x66F4;&amp;#x65B0;:\n$QRCode\n\n$buildUpdateDescription" | mail -s "iOS&amp;#x65B0;&amp;#x5305;" $emailSet
@@ -374,9 +374,9 @@ function pgyer() {
     #蒲公英二维码
     httpstr=${RESULT#*buildQRCodeURL}
     httpstr=${httpstr#*:}
-    httpstr=${httpstr#*"}
-    httpstr=${httpstr%"*}
-    QRCode=${httpstr//'\'/''}
+    httpstr=${httpstr//'\'/''}
+    httpstr=${httpstr//'"'/''}
+    QRCode=${httpstr%"}}"*}
 
     #发送邮件
     echo -e "app&amp;#x66F4;&amp;#x65B0;:\n$QRCode\n\n$buildUpdateDescription" | mail -s "iOS&amp;#x65B0;&amp;#x5305;" $emailSet
